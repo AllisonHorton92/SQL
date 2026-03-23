@@ -1,0 +1,77 @@
+This project used the following Database: https://www.db-fiddle.com/f/pxMci1sLL945KHKYvpe9W6/1
+
+--Q1: Which VIPs did not RSVP to the welcome event
+
+SELECT v.first_name,
+v.last_name
+FROM vips AS v
+LEFT JOIN reservations AS  r
+ON v.member_id = r.member_id
+WHERE welcome_rsvp = 0 OR welcome_rsvp IS NULL;
+
+--Q2: Who is providing feedback on each event?
+
+SELECT v1.first_name,
+v1.last_name,
+v1.association,
+e.event_name
+FROM vips AS v1
+JOIN vips AS v2
+ON v1.provides_feedback_to = v2.member_id
+JOIN events AS e
+ON v1.event = e.event_id;
+
+--Q3: Who is providing feedback to whom in each event?
+
+SELECT
+v1.first_name AS giver_first_name,
+v1.last_name AS giver_last_name,
+v1.association AS giver_association,
+e.event_name,
+v2.first_name AS receiver_first_name,
+v2.last_name AS receiver_last_name,
+v2.association AS receiver_association
+FROM vips AS v1
+JOIN vips AS v2
+ON v1.provides_feedback_to = v2.member_id
+JOIN events AS e
+ON v1.event = e.event_id;
+
+--Q4: Which VIPs have RSVP'd to an event?
+
+SELECT
+v.first_name,
+v.last_name,
+e.event_name
+FROM vips AS v
+INNER JOIN events AS e
+ON v.event = e.event_id;
+
+--Q5:Use a subquery to count RSVPs for dinner from each hotel
+
+SELECT 
+h.hotel_name,
+sub.dinner_count
+FROM hotels AS h
+JOIN (SELECT hotel, COUNT(*) AS dinner_count
+FROM reservations
+WHERE dinner_rsvp = 1
+GROUP BY hotel)
+AS sub
+ON h.hotel_id = sub.hotel;
+
+--Q6: Show each VIP, their hotel name, and their RSVP responses.
+
+SELECT 
+v.first_name,
+v.last_name,
+h.hotel_name,
+r.welcome_rsvp,
+r.dinner_rsvp
+FROM vips AS v
+JOIN reservations AS r
+ON v.member_id = r.member_id
+JOIN hotels AS h
+ON r.hotel = h.hotel_id;
+
+
